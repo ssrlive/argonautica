@@ -20,7 +20,6 @@ cfg_if! {
 fn main() -> Result<(), failure::Error> {
     let temp = tempfile::tempdir()?;
     let temp_dir = temp.path();
-    let temp_dir_str = temp_dir.to_str().unwrap();
 
     let blamka_header = if IS_SIMD {
         "phc-winner-argon2/src/blake2/blamka-round-opt.h"
@@ -72,27 +71,30 @@ fn main() -> Result<(), failure::Error> {
     }
     builder.compile("argon2");
 
-    let out_dir_string = env::var("OUT_DIR")?;
-    let out_dir = Path::new(&out_dir_string);
-    let file_path = out_dir.join("bindings.rs");
-    let bindings = bindgen::Builder::default()
-        .header(format!("{}/argon2.h", temp_dir_str))
-        .header(format!("{}/encoding.h", temp_dir_str))
-        .whitelist_function("argon2_ctx")
-        .whitelist_function("argon2_encodedlen")
-        .whitelist_function("argon2_error_message")
-        .whitelist_function("argon2_verify_ctx")
-        .whitelist_function("decode_string")
-        .whitelist_function("encode_string")
-        .whitelist_type("Argon2_ErrorCodes")
-        .ctypes_prefix("libc")
-        .layout_tests(true)
-        .raw_line("use libc;")
-        .rust_target(bindgen::RustTarget::Stable_1_25) // TODO: Update when 1.26 is available
-        .rustfmt_bindings(false)
-        .generate()
-        .map_err(|_| failure::err_msg("failed to generate bindings"))?;
-    bindings.write_to_file(file_path)?;
+    {
+        let temp_dir_str = temp_dir.to_str().unwrap();
+        let out_dir_string = env::var("OUT_DIR")?;
+        let out_dir = Path::new(&out_dir_string);
+        let file_path = out_dir.join("bindings.rs");
+        let bindings = bindgen::Builder::default()
+            .header(format!("{}/argon2.h", temp_dir_str))
+            .header(format!("{}/encoding.h", temp_dir_str))
+            .whitelist_function("argon2_ctx")
+            .whitelist_function("argon2_encodedlen")
+            .whitelist_function("argon2_error_message")
+            .whitelist_function("argon2_verify_ctx")
+            .whitelist_function("decode_string")
+            .whitelist_function("encode_string")
+            .whitelist_type("Argon2_ErrorCodes")
+            .ctypes_prefix("libc")
+            .layout_tests(true)
+            .raw_line("use libc;")
+            .rust_target(bindgen::RustTarget::Stable_1_25) // TODO: Update when 1.26 is available
+            .rustfmt_bindings(false)
+            .generate()
+            .map_err(|_| failure::err_msg("failed to generate bindings"))?;
+        bindings.write_to_file(file_path)?;
+    }
 
     Ok(())
 }

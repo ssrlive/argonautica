@@ -14,7 +14,6 @@ readme = "README.md"
 repository = "https://github.com/bcmyers/argonautica"
 
 build = "build.rs"
-links = "argon2"
 
 [lib]
 name = "argonautica"
