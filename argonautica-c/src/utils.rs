@@ -22,22 +22,15 @@ pub extern "C" fn argonautica_encoded_len(
     salt_len: u32,
     variant: argonautica_variant_t,
 ) -> c_int {
-    let mut buf = [0u8; 1024];
-
     let fixed_len = 17; // $$$$$v=19m=t=p=,,
     let hash_len = base64_len(hash_len);
-    let iterations_len = match itoa::write(&mut buf[..], iterations) {
-        Ok(bytes_written) => bytes_written,
-        Err(_) => return -1,
-    };
-    let lanes_len = match itoa::write(&mut buf[..], lanes) {
-        Ok(bytes_written) => bytes_written,
-        Err(_) => return -1,
-    };
-    let memory_size_len = match itoa::write(&mut buf[..], memory_size) {
-        Ok(bytes_written) => bytes_written,
-        Err(_) => return -1,
-    };
+
+    let mut buffer = itoa::Buffer::new();
+
+    let iterations_len = buffer.format(iterations).len();
+    let lanes_len = buffer.format(lanes).len();
+    let memory_size_len = buffer.format(memory_size).len();
+
     let salt_len = base64_len(salt_len);
     let variant_len = match variant {
         argonautica_variant_t::ARGONAUTICA_ARGON2D => 7,

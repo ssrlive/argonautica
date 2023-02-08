@@ -1,6 +1,6 @@
 //! Utility functions for generating random bytes, which can be useful for generating
 //! [`SecretKey`](input/struct.SecretKey.html)s, for example.
-use base64;
+use crate::{base64_encode, Base64Engine, Base64Engine::Standard};
 use rand::rngs::OsRng;
 use rand::RngCore;
 
@@ -26,7 +26,7 @@ pub fn generate_random_base64_encoded_string(len: u32) -> Result<String, Error> 
     OsRng
         .try_fill_bytes(&mut bytes)
         .map_err(|e| Error::new(ErrorKind::OsRngError).add_context(format!("{}", e)))?;
-    let output = base64::encode_config(&bytes, base64::STANDARD);
+    let output = base64_encode(&bytes, Standard);
     Ok(output)
 }
 
@@ -37,12 +37,12 @@ pub fn generate_random_base64_encoded_string(len: u32) -> Result<String, Error> 
 /// function is doing.
 pub fn generate_random_base64_encoded_string_config(
     len: u32,
-    config: base64::Config,
+    engine: Base64Engine,
 ) -> Result<String, Error> {
     let mut bytes = vec![0u8; len as usize];
     OsRng
         .try_fill_bytes(&mut bytes)
         .map_err(|e| Error::new(ErrorKind::OsRngError).add_context(format!("{}", e)))?;
-    let output = base64::encode_config(&bytes, config);
+    let output = base64_encode(&bytes, engine);
     Ok(output)
 }

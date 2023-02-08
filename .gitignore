@@ -1,5 +1,7 @@
 .DS_Store
 .vscode/
+.VSCodeCounter/
+include/argonautica.h
 todo.txt
 foo.py
 

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use base64;
+use crate::{base64_decode, base64_encode, Base64Engine, Base64Engine::Standard};
 
 use input::Container;
 use {Error, ErrorKind};
@@ -136,7 +136,7 @@ impl<'a> SecretKey<'a> {
     where
         S: AsRef<str>,
     {
-        let bytes = base64::decode_config(s.as_ref(), base64::STANDARD).map_err(|_| {
+        let bytes = base64_decode(s.as_ref(), Standard).map_err(|_| {
             Error::new(ErrorKind::Base64DecodeError).add_context(format!("&str: {}", s.as_ref()))
         })?;
         Ok(SecretKey {
@@ -148,12 +148,12 @@ impl<'a> SecretKey<'a> {
     /// [url-safe encoding](https://docs.rs/base64/0.9.1/base64/constant.URL_SAFE.html))
     pub fn from_base64_encoded_config<S>(
         s: S,
-        config: base64::Config,
+        engine: Base64Engine,
     ) -> Result<SecretKey<'static>, Error>
     where
         S: AsRef<str>,
     {
-        let bytes = base64::decode_config(s.as_ref(), config).map_err(|_| {
+        let bytes = base64_decode(s.as_ref(), engine).map_err(|_| {
             Error::new(ErrorKind::Base64DecodeError).add_context(format!("&str: {}", s.as_ref()))
         })?;
         Ok(SecretKey {
@@ -196,12 +196,12 @@ impl<'a> SecretKey<'a> {
     /// Returns the underlying byte buffer as a base64-encoded `String` using
     /// [standard base64 encoding](https://docs.rs/base64/0.9.1/base64/constant.STANDARD.html)
     pub fn to_base64_encoded(&self) -> String {
-        base64::encode_config(self.as_bytes(), base64::STANDARD)
+        base64_encode(self.as_bytes(), Standard)
     }
     /// Returns the underlying byte buffer as a base64-encoded `String` using
     /// a custom base64 encoding (e.g. a [url-safe encoding](https://docs.rs/base64/0.9.1/base64/constant.URL_SAFE.html))
-    pub fn to_base64_encoded_config(&self, config: base64::Config) -> String {
-        base64::encode_config(self.as_bytes(), config)
+    pub fn to_base64_encoded_config(&self, engine: Base64Engine) -> String {
+        base64_encode(self.as_bytes(), engine)
     }
     /// Read-only access to the underlying byte buffer as a `&str` if its bytes are valid utf-8
     pub fn to_str(&self) -> Result<&str, Error> {

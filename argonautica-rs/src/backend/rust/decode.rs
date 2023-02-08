@@ -1,4 +1,4 @@
-use base64;
+use crate::{base64_decode, Base64Engine::StandardNoPad};
 
 use config::{Variant, Version};
 use output::HashRaw;
@@ -8,7 +8,7 @@ pub(crate) fn decode_rust(hash: &str) -> Result<HashRaw, Error> {
     let (rest, intermediate) = parse_hash(hash).map_err(|_| {
         Error::new(ErrorKind::HashDecodeError).add_context(format!("Hash: {}", &hash))
     })?;
-    let raw_hash_bytes = base64::decode_config(rest, base64::STANDARD_NO_PAD).map_err(|_| {
+    let raw_hash_bytes = base64_decode(rest, StandardNoPad).map_err(|_| {
         Error::new(ErrorKind::HashDecodeError).add_context(format!("Hash: {}", &hash))
     })?;
     let hash_raw = HashRaw {
@@ -52,7 +52,7 @@ named!(parse_hash<&str, IntermediateStruct>, do_parse!(
     take_until!("$") >>
     take!(1) >>
     raw_salt_bytes: map_res!(take_until!("$"), |x: &str| {
-        base64::decode_config(x, base64::STANDARD_NO_PAD)
+        base64_decode(x, StandardNoPad)
     }) >>
     take_until!("$") >>
     take!(1) >>

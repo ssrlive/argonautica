@@ -70,25 +70,29 @@ fn generate_args(input: &Input) -> Vec<String> {
     let additional_data = if input.additional_data_len == 0 {
         "".to_string()
     } else {
-        rng.sample_iter(&Alphanumeric)
+        let v = rng.clone().sample_iter(&Alphanumeric)
             .take(input.additional_data_len)
-            .collect::<String>()
+            .collect::<Vec<_>>();
+        String::from_utf8(v).unwrap()
     };
     let secret_key = if input.secret_key_len == 0 {
         "".to_string()
     } else {
-        rng.sample_iter(&Alphanumeric)
+        let v = rng.clone().sample_iter(&Alphanumeric)
             .take(input.secret_key_len)
-            .collect::<String>()
+            .collect::<Vec<_>>();
+        String::from_utf8(v).unwrap()
     };
-    let password = rng
+    let password = rng.clone()
         .sample_iter(&Alphanumeric)
         .take(input.password_len)
-        .collect::<String>();
+        .collect::<Vec<_>>();
+    let password = String::from_utf8(password).unwrap();
     let salt = rng
         .sample_iter(&Alphanumeric)
         .take(input.salt_len)
-        .collect::<String>();
+        .collect::<Vec<_>>();
+    let salt = String::from_utf8(salt).unwrap();
 
     let flags_string = format!("{}", input.flags);
     let hash_len_string = format!("{}", input.hash_len);
