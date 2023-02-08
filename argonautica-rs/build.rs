@@ -71,6 +71,7 @@ fn main() -> Result<(), failure::Error> {
     }
     builder.compile("argon2");
 
+    /*
     {
         let temp_dir_str = temp_dir.to_str().unwrap();
         let out_dir_string = env::var("OUT_DIR")?;
@@ -95,6 +96,7 @@ fn main() -> Result<(), failure::Error> {
             .map_err(|_| failure::err_msg("failed to generate bindings"))?;
         bindings.write_to_file(file_path)?;
     }
+    */
 
     Ok(())
 }
